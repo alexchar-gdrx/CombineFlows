@@ -53,24 +53,24 @@ class MainViewModel : ViewModel() {
             _isFetchingCoupon.update { false }
         }
         .map { it.toString() }
-        .stateIn(viewModelScope, SharingStarted.Lazily, "Initial Loading")
+        .stateIn(viewModelScope, SharingStarted.Lazily, "Loading")
 
     val state: StateFlow<Pair<Color, String>> =
         combine(isLoggedIn, homeData, _isFetchingCoupon)
         { isLoggedIn, homeData, isFetchingCoupon ->
             // isFetchingCoupon not used in our project
-            mapToUiState(false, homeData, isLoggedIn)
-        }.stateIn(viewModelScope, SharingStarted.Lazily, Color.White to "Initial Loading")
+            mapToUiState(isFetchingCoupon, homeData, isLoggedIn)
+        }.stateIn(viewModelScope, SharingStarted.Lazily, Color.White to "Loading")
 
     private suspend fun mapToUiState(
         isFetching: Boolean,
         homeData: String,
         isLoggedIn: Boolean
     ): Pair<Color, String> {
-        delay(500) // This causes intermediate wrong state
+//        delay(500) // This causes intermediate wrong state
 
         return when {
-            isFetching || homeData.contains("Initial Loading") -> Color.White to "Initial Loading"
+            isFetching || homeData.contains("Loading") -> Color.White to "Loading"
             isLoggedIn && homeData.contains("2") -> Color.Green to "Free User\n with\n Free Coupon"
             !isLoggedIn && homeData.contains("2") -> Color.Red to "Guest User \n with\n Free Coupon" // This case might not be intended, consider removing or changing it.
             isLoggedIn && homeData.contains("1") -> Color.Red to "Free User\n with\n Guest Coupon"
